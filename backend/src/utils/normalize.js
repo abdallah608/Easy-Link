@@ -1,3 +1,30 @@
+const ARABIC_INDIC_DIGITS = "٠١٢٣٤٥٦٧٨٩";
+
+export function toAsciiDigits(value) {
+  return String(value ?? "").replace(/[٠-٩]/g, (ch) => {
+    const i = ARABIC_INDIC_DIGITS.indexOf(ch);
+    return i >= 0 ? String(i) : ch;
+  });
+}
+
+/** Order # from Excel "Order" column — same key for comments across uploads. */
+export function normalizeOrderNo(value) {
+  if (value === null || value === undefined) return "";
+  let s = toAsciiDigits(value);
+  if (typeof value === "number" && Number.isFinite(value)) {
+    s = String(value);
+  } else {
+    s = String(s).trim();
+  }
+  s = s.replace(/[\u200B-\u200D\uFEFF]/g, "");
+  if (/\.0+$/.test(s)) s = s.replace(/\.0+$/, "");
+  return collapseWhitespace(s);
+}
+
+export function isPendingSdmStage(stage) {
+  return normalizeKey(stage) === normalizeKey("Pending SDM");
+}
+
 export function collapseWhitespace(value) {
   return String(value ?? "")
     .trim()

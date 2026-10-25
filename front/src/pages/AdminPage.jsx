@@ -71,7 +71,16 @@ export default function AdminPage() {
     try {
       const res = await api('/admin/upload', { method: 'POST', formData: fd });
       toast.push(t(lang, 'uploadSuccess'), 'success');
-      setUploadProgress(JSON.stringify(res.data, null, 2));
+      const lines = [JSON.stringify(res.data, null, 2)];
+      if (res.data?.commentStats) {
+        lines.push(
+          t(lang, 'uploadCommentStats', {
+            orders: res.data.commentStats.pendingSdmOrdersWithComments,
+            hidden: res.data.commentStats.hiddenCommentRows,
+          }),
+        );
+      }
+      setUploadProgress(lines.join('\n\n'));
       await refreshMe();
       await loadAll();
     } catch (err) {

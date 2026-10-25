@@ -284,6 +284,16 @@ router.put('/config', validateOrigin, async (req, res) => {
   return res.json({ ok: true, data: next });
 });
 
+router.get('/comments-health', async (_req, res) => {
+  try {
+    const { getCommentsStorageInfo } = await import('../services/commentsDb.js');
+    const info = await getCommentsStorageInfo();
+    return res.json({ ok: true, data: info });
+  } catch (err) {
+    return res.status(500).json({ ok: false, code: 'COMMENTS_HEALTH_FAILED', message: err.message });
+  }
+});
+
 function safeUser(u) {
   return {
     id: u.id,

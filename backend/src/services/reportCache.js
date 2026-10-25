@@ -180,12 +180,21 @@ export async function commitWorkbookReplacement(tempPath, { originalFileName } =
       /* ignore */
     }
 
+    let commentStats = null;
+    try {
+      const { pendingSdmCommentStatsAfterUpload } = await import('./commentsService.js');
+      commentStats = await pendingSdmCommentStatsAfterUpload();
+    } catch {
+      commentStats = null;
+    }
+
     return {
       rowCounts: cache.rowCounts,
       lastUploadAt: now,
       unassignedCount: unassignedNames.length,
       reportNumber,
       importedRows: rows.length,
+      commentStats,
     };
   });
 }

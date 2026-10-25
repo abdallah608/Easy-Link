@@ -1,5 +1,5 @@
 import { NavLink, Outlet } from 'react-router-dom';
-import { LayoutDashboard, Trophy, Target, Users, ClipboardList, Settings, LogOut } from 'lucide-react';
+import { LayoutDashboard, Trophy, Target, Users, ClipboardList, MessageSquare, Settings, LogOut } from 'lucide-react';
 import { useApp } from '../context/AppContext.jsx';
 import { t } from '../i18n/index.js';
 import { api } from '../api/client.js';
@@ -37,6 +37,9 @@ export default function AppShell() {
           </NavLink>
           <NavLink className="nav-link" to="/orders">
             <ClipboardList size={18} /> {t(lang, 'orders')}
+          </NavLink>
+          <NavLink className="nav-link" to="/pending-sdm">
+            <MessageSquare size={18} /> {t(lang, 'pendingSdmPage')}
           </NavLink>
           {role !== 'employee' && (
             <NavLink className="nav-link" to="/team">

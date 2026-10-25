@@ -17,6 +17,15 @@ export const paths = {
   jwtSecret: path.join(dataRoot, 'data', '.jwt-secret'),
   frontDist: path.join(rootDir, 'front', 'dist'),
   uploadsTmp: path.join(dataRoot, 'data', 'tmp'),
+  orderComments:
+    process.env.COMMENTS_STORE_PATH?.trim() ||
+    path.join(dataRoot, 'data', 'order_comments.json'),
+  commentsBackups: path.join(dataRoot, 'data', 'comments-backups'),
+};
+
+export const commentsConfig = {
+  appTz: process.env.APP_TZ || Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC',
+  backupKeepDays: Number(process.env.COMMENTS_BACKUP_KEEP || 14),
 };
 
 export const serverConfig = {

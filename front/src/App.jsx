@@ -6,6 +6,7 @@ import OverviewPage from './pages/OverviewPage.jsx';
 import AchievementsPage from './pages/AchievementsPage.jsx';
 import LeaderboardPage from './pages/LeaderboardPage.jsx';
 import OrdersPage from './pages/OrdersPage.jsx';
+import PendingSdmPage from './pages/PendingSdmPage.jsx';
 import TeamPage from './pages/TeamPage.jsx';
 import AdminPage from './pages/AdminPage.jsx';
 import AppShell from './components/AppShell.jsx';
@@ -37,6 +38,7 @@ function RouterTree() {
         <Route path="achievements" element={<AchievementsPage />} />
         <Route path="leaderboard" element={<LeaderboardPage />} />
         <Route path="orders" element={<OrdersPage />} />
+        <Route path="pending-sdm" element={<PendingSdmPage />} />
         <Route path="team" element={<TeamPage />} />
         <Route
           path="admin"

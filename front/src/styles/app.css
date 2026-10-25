@@ -1765,6 +1765,104 @@ table.data-table td {
   text-align: center;
 }
 
+.pending-sdm-pick {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  align-items: flex-end;
+  margin-bottom: var(--space-4);
+}
+
+.pending-sdm-table .pending-sdm-row {
+  cursor: pointer;
+}
+
+.pending-sdm-table .pending-sdm-row:hover {
+  background: color-mix(in srgb, var(--accent-soft) 80%, transparent);
+}
+
+.comment-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 700;
+  color: var(--chart-1);
+}
+
+.last-comment-cell {
+  max-width: 280px;
+}
+
+.last-comment-text {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  line-height: 1.35;
+}
+
+.order-comments-modal {
+  width: min(560px, 100%);
+  max-height: min(90vh, 720px);
+  display: flex;
+  flex-direction: column;
+}
+
+.order-comments-sub {
+  margin: 4px 0 0;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.order-comments-list {
+  flex: 1;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: var(--space-3) 0;
+  max-height: 340px;
+}
+
+.order-comment-card {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  background: color-mix(in srgb, var(--surface) 96%, var(--chart-3));
+}
+
+.order-comment-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.order-comment-body {
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+  color: var(--text);
+}
+
+.order-comment-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.order-comments-compose {
+  border-top: 1px solid var(--border);
+  padding-top: var(--space-3);
+}
+
+.order-comments-compose-foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 8px;
+}
+
 .btn:focus-visible,
 .input:focus-visible,
 .tab-btn:focus-visible,

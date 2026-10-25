@@ -1,0 +1,16 @@
+services:
+  easylink:
+    build: .
+    ports:
+      - "8501:8501"
+    environment:
+      NODE_ENV: production
+      EASYLINK_DATA_DIR: /data
+      APP_TZ: Asia/Riyadh
+      COOKIE_SECURE: "false"
+    volumes:
+      - easylink_data:/data
+    restart: unless-stopped
+
+volumes:
+  easylink_data:

@@ -61,8 +61,12 @@ export function applyOrderQueryFilters(rows, query, reportingYear) {
     visible = visible.filter((r) => r.status === status);
   }
 
-  if (query.month && query.month !== 'all') {
-    visible = filterByMonth(visible, query.month, reportingYear);
+  // Under Activation = open backlog: month filter only when user picks a month (not "all").
+  const monthParam = query.month ? String(query.month) : 'all';
+  const skipMonthForOpenBacklog =
+    status === 'underActivation' && (!monthParam || monthParam === 'all');
+  if (!skipMonthForOpenBacklog && monthParam && monthParam !== 'all') {
+    visible = filterByMonth(visible, monthParam, reportingYear);
   }
 
   const company = query.company ? String(query.company) : '';
@@ -93,8 +97,11 @@ export function collectOrderFilterOptions(rows, { status, month, reportingYear }
   if (status && ['applied', 'underActivation', 'lost'].includes(status)) {
     base = base.filter((r) => r.status === status);
   }
-  if (month && month !== 'all') {
-    base = filterByMonth(base, month, reportingYear);
+  const monthParam = month ? String(month) : 'all';
+  const skipMonthForOpenBacklog =
+    status === 'underActivation' && (!monthParam || monthParam === 'all');
+  if (!skipMonthForOpenBacklog && monthParam && monthParam !== 'all') {
+    base = filterByMonth(base, monthParam, reportingYear);
   }
 
   const companies = [...new Set(base.map((r) => r.companyName).filter(Boolean))].sort((a, b) =>

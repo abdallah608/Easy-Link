@@ -8,6 +8,7 @@ import { serverConfig, paths } from './config.js';
 import authRoutes from './routes/authRoutes.js';
 import apiRoutes from './routes/apiRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
+import pendingSdmRoutes from './routes/pendingSdmRoutes.js';
 import { attachAuth, requireAuth, requirePasswordChanged } from './middleware/auth.js';
 
 export function createApp() {
@@ -40,6 +41,7 @@ export function createApp() {
   });
 
   app.use('/api/admin', adminRoutes);
+  app.use('/api', pendingSdmRoutes);
   app.use('/api', apiRoutes);
 
   const dist = paths.frontDist;

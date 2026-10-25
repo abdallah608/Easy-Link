@@ -136,7 +136,7 @@ export default function OrdersPage() {
     setSearchParams(
       new URLSearchParams({
         status,
-        month: String(defaultMonth || month),
+        month: status === 'underActivation' ? 'all' : String(defaultMonth || month),
       }),
       { replace: true },
     );
@@ -154,7 +154,12 @@ export default function OrdersPage() {
                 role="tab"
                 aria-selected={status === tab.key}
                 className={`tab-segment-btn ${status === tab.key ? 'active' : ''}`}
-                onClick={() => patchParams({ status: tab.key, page: 1, statusTexts: '', stages: '' })}
+                onClick={() => {
+                  const patch = { status: tab.key, page: 1, statusTexts: '', stages: '' };
+                  if (tab.key === 'underActivation') patch.month = 'all';
+                  else if (defaultMonth) patch.month = String(defaultMonth);
+                  patchParams(patch);
+                }}
               >
                 {t(lang, tab.labelKey)}
               </button>
@@ -175,6 +180,9 @@ export default function OrdersPage() {
         <div className="orders-toolbar-grid">
           <label className="filter-field">
             <span>{t(lang, 'filterMonth')}</span>
+            {status === 'underActivation' ? (
+              <span className="filters-meta">{t(lang, 'underActivationMonthHint')}</span>
+            ) : null}
             <select className="input" value={month} onChange={(e) => patchParams({ month: e.target.value, page: 1 })}>
               <option value="all">{t(lang, 'filterAll')}</option>
               {(metadata?.availableMonths?.length ? metadata.availableMonths : [...Array(12)].map((_, i) => i + 1)).map(

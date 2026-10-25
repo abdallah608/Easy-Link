@@ -97,9 +97,32 @@ Leaderboard: company-wide ranks without customer/MSISDN details.
 
 JWT secret: `data/.jwt-secret` (local file, mode 600).
 
+## Pending SDM comments
+
+- **Not Streamlit** — this repo is **React + Express**. Comments are stored in **`data/order_comments.json`** (separate from `current.xlsx`).
+- UI: sidebar → **Pending SDM comments** (`/pending-sdm`). Only orders whose stage is **Pending SDM** (trim + case-insensitive).
+- Excel upload **replaces** report data only; comments stay keyed by normalized **Order** number.
+- Optional env: `EASYLINK_DATA_DIR`, `COMMENTS_STORE_PATH`, `APP_TZ`, `COMMENTS_BACKUP_KEEP` — see `.env.example`.
+
+## Deploy (Docker)
+
+```powershell
+docker compose up --build -d
+```
+
+Mount **`easylink_data`** volume (or set `EASYLINK_DATA_DIR`) so users, settings, comments, and uploads survive redeploys.  
+**Warning:** ephemeral hosts (free tiers without persistent disk) lose file-based data unless you attach storage or an external DB.
+
+### Pre-deploy checklist
+
+- [ ] `EASYLINK_DATA_DIR` points to a **writable persistent** path (not `/tmp` or inside the git repo)
+- [ ] Back up `data/` (includes `order_comments.json`, `comments-backups/`, `current.xlsx`, users)
+- [ ] `COOKIE_SECURE=true` behind HTTPS
+- [ ] Admin → upload shows Pending SDM comment stats after each Excel replace
+
 ## Persistence & backup
 
-Single Node process; JSON + one XLSX under `data/`. Back up the entire `data/` folder while the app is stopped. Use atomic writes; avoid multiple server instances sharing the same `data/`.
+Single Node process; JSON + one XLSX under `data/`. Daily comment JSON backups go to `data/comments-backups/`. Back up the entire `data/` folder while the app is stopped. Use atomic writes; avoid multiple server instances sharing the same `data/`.
 
 ## Windows Task Scheduler
 

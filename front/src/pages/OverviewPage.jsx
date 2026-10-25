@@ -88,8 +88,17 @@ export default function OverviewPage() {
 
   if (loading && !data) return <OverviewSkeleton />;
 
-  const ordersLink = (extra) => {
-    const q = new URLSearchParams({ month: String(activeMonth), ...extra });
+  const ordersLink = (extra = {}) => {
+    const q = new URLSearchParams();
+    for (const [key, value] of Object.entries(extra)) {
+      if (value != null && value !== '') q.set(key, String(value));
+    }
+    const linkStatus = extra.status;
+    if (linkStatus === 'underActivation') {
+      q.set('month', extra.month != null ? String(extra.month) : 'all');
+    } else {
+      q.set('month', extra.month != null ? String(extra.month) : String(activeMonth));
+    }
     return `/orders?${q}`;
   };
 
