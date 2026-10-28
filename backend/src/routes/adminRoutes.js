@@ -259,6 +259,76 @@ router.delete('/targets/:personId/:year/:month', validateOrigin, async (req, res
   return res.json({ ok: true, data });
 });
 
+const VALID_USER_ROLES = ['employee', 'manager', 'ict', 'top', 'admin'];
+
+router.post('/users', validateOrigin, async (req, res) => {
+  const body = req.body || {};
+  const displayName = String(body.displayName || '').trim();
+  const username = String(body.username || '').trim();
+  const role = String(body.role || 'employee');
+  if (!displayName || !username) {
+    return res.status(400).json({ ok: false, code: 'MISSING_FIELDS' });
+  }
+  if (!VALID_USER_ROLES.includes(role)) {
+    return res.status(400).json({ ok: false, code: 'INVALID_ROLE' });
+  }
+  const users = await loadUsers();
+  const usernameKey = username.toLowerCase();
+  if (users.some((u) => u.username.toLowerCase() === usernameKey)) {
+    return res.status(400).json({ ok: false, code: 'DUPLICATE_USERNAME' });
+  }
+  const people = await loadPeople();
+  if (people.some((p) => String(p.username || '').toLowerCase() === usernameKey)) {
+    return res.status(400).json({ ok: false, code: 'DUPLICATE_USERNAME' });
+  }
+  const managerId = body.managerId || null;
+  const personId = `p-${crypto.randomBytes(4).toString('hex')}`;
+  if (managerId && wouldCreateCycle(people, personId, managerId)) {
+    return res.status(400).json({ ok: false, code: 'MANAGER_CYCLE' });
+  }
+  const orgRole = role === 'admin' ? 'employee' : role;
+  const person = {
+    id: personId,
+    displayName,
+    username,
+    aliases: (body.aliases?.length ? body.aliases : [displayName]).map((a) => normalizeKey(a)),
+    managerId,
+    group: body.group || 'independent',
+    orgRole,
+  };
+  people.push(person);
+  await savePeople(people);
+
+  let user = {
+    id: `u-${crypto.randomBytes(4).toString('hex')}`,
+    username,
+    personId: person.id,
+    role,
+    active: false,
+    tokenVersion: 0,
+    mustChangePassword: false,
+    passwordHash: await hashPassword(crypto.randomBytes(16).toString('hex')),
+  };
+  users.push(user);
+  await saveUsers(users);
+
+  const config = await loadConfig();
+  refreshIdentityOnPeopleChange(people, config);
+
+  let tempPassword = null;
+  if (body.activate !== false) {
+    const result = await activateUserAccount(user.id, req.auth.user.id);
+    if (result.error) return res.status(400).json({ ok: false, code: result.error });
+    user = result.user;
+    tempPassword = result.tempPassword;
+  }
+
+  return res.json({
+    ok: true,
+    data: { person, user: safeUser(user), tempPassword },
+  });
+});
+
 router.put('/users/:id', validateOrigin, async (req, res) => {
   const users = await loadUsers();
   const idx = users.findIndex((u) => u.id === req.params.id);

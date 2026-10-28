@@ -26,6 +26,15 @@ export default function AdminPage() {
     [metadata],
   );
   const [targetForm, setTargetForm] = useState({ personId: '', month: targetMonth, revenueTarget: '', ordersTarget: '' });
+  const [createUserForm, setCreateUserForm] = useState({
+    displayName: '',
+    username: '',
+    role: 'employee',
+    group: 'independent',
+    managerId: '',
+    activate: true,
+  });
+  const [creatingUser, setCreatingUser] = useState(false);
 
   async function loadAll() {
     const [p, c, h, tg] = await Promise.all([
@@ -101,6 +110,47 @@ export default function AdminPage() {
     await loadAll();
   }
 
+  async function createUser(e) {
+    e.preventDefault();
+    if (!createUserForm.displayName.trim() || !createUserForm.username.trim()) return;
+    setCreatingUser(true);
+    try {
+      const body = {
+        displayName: createUserForm.displayName.trim(),
+        username: createUserForm.username.trim(),
+        role: createUserForm.role,
+        group: createUserForm.group,
+        activate: createUserForm.activate,
+      };
+      if (createUserForm.managerId) body.managerId = createUserForm.managerId;
+      const res = await api('/admin/users', { method: 'POST', body });
+      if (res.data.tempPassword) setTempPassword(res.data.tempPassword);
+      toast.push(t(lang, 'userCreated'), 'success');
+      setCreateUserForm({
+        displayName: '',
+        username: '',
+        role: 'employee',
+        group: 'independent',
+        managerId: '',
+        activate: true,
+      });
+      await loadAll();
+    } catch (err) {
+      toast.push(t(lang, err.code) || t(lang, 'userCreateFailed'), 'error');
+    } finally {
+      setCreatingUser(false);
+    }
+  }
+
+  const managerOptions = useMemo(() => {
+    if (!peopleData) return [];
+    return peopleData.people.filter((p) => {
+      const u = peopleData.users.find((x) => x.personId === p.id);
+      const r = u?.role || p.orgRole;
+      return r === 'manager' || r === 'top' || r === 'admin';
+    });
+  }, [peopleData]);
+
   async function saveConfig() {
     try {
       await api('/admin/config', { method: 'PUT', body: config });
@@ -162,6 +212,85 @@ export default function AdminPage() {
       <Tabs tabs={tabs} active={tab} onChange={setTab} />
 
       {tab === 'users' ? (
+        <>
+        <div className="card admin-create-user">
+          <h3 style={{ marginTop: 0 }}>{t(lang, 'createUser')}</h3>
+          <p className="filters-meta">{t(lang, 'createUserHint')}</p>
+          <form className="admin-create-user-form" onSubmit={createUser}>
+            <label className="filter-field">
+              <span>{t(lang, 'colName')}</span>
+              <input
+                className="input"
+                required
+                value={createUserForm.displayName}
+                onChange={(e) => setCreateUserForm((f) => ({ ...f, displayName: e.target.value }))}
+              />
+            </label>
+            <label className="filter-field">
+              <span>{t(lang, 'username')}</span>
+              <input
+                className="input"
+                required
+                autoComplete="off"
+                dir="ltr"
+                value={createUserForm.username}
+                onChange={(e) => setCreateUserForm((f) => ({ ...f, username: e.target.value }))}
+              />
+            </label>
+            <label className="filter-field">
+              <span>{t(lang, 'role')}</span>
+              <select
+                className="input"
+                value={createUserForm.role}
+                onChange={(e) => setCreateUserForm((f) => ({ ...f, role: e.target.value }))}
+              >
+                {['employee', 'manager', 'ict', 'top', 'admin'].map((r) => (
+                  <option key={r} value={r}>
+                    {t(lang, `roles.${r}`)}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="filter-field">
+              <span>{t(lang, 'userGroup')}</span>
+              <select
+                className="input"
+                value={createUserForm.group}
+                onChange={(e) => setCreateUserForm((f) => ({ ...f, group: e.target.value }))}
+              >
+                <option value="independent">{t(lang, 'groupIndependent')}</option>
+                <option value="outsource">{t(lang, 'groupOutsource')}</option>
+                <option value="ict">{t(lang, 'groupIct')}</option>
+              </select>
+            </label>
+            <label className="filter-field">
+              <span>{t(lang, 'manager')}</span>
+              <select
+                className="input"
+                value={createUserForm.managerId}
+                onChange={(e) => setCreateUserForm((f) => ({ ...f, managerId: e.target.value }))}
+              >
+                <option value="">—</option>
+                {managerOptions.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.displayName}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="filter-field admin-create-user-check">
+              <input
+                type="checkbox"
+                checked={createUserForm.activate}
+                onChange={(e) => setCreateUserForm((f) => ({ ...f, activate: e.target.checked }))}
+              />
+              <span>{t(lang, 'createUserActivate')}</span>
+            </label>
+            <button type="submit" className="btn" disabled={creatingUser}>
+              {t(lang, 'createUserSubmit')}
+            </button>
+          </form>
+        </div>
         <div className="card table-wrap">
           <div className="filters-row">
             <input
@@ -245,6 +374,7 @@ export default function AdminPage() {
             </tbody>
           </table>
         </div>
+        </>
       ) : null}
 
       {tab === 'upload' ? (

@@ -1765,6 +1765,23 @@ table.data-table td {
   text-align: center;
 }
 
+.admin-create-user-form {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: var(--space-3);
+  align-items: end;
+}
+
+.admin-create-user-check {
+  flex-direction: row !important;
+  align-items: center;
+  gap: 8px;
+}
+
+.admin-create-user-check input {
+  width: auto;
+}
+
 .pending-sdm-pick {
   display: flex;
   flex-wrap: wrap;
